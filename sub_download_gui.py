@@ -1,6 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
-from tkinter import ttk
+import threading
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -9,12 +8,9 @@ import time
 from download import download as d
 
 
-def sub_download(event=None):
+def sub_download(urlSite, i, name):
 
-    urlSite = url.get()
-    i = episodeNum.get()
     i = int(i)
-    name = showName.get()
 
     urlSite.strip()
     name.strip()
@@ -34,6 +30,16 @@ def sub_download(event=None):
             time.sleep(random.randint(2, 5))
             d(all_links[j], name + str(j + 1) + ".rar")
             print(all_links[j])
+
+
+def run_download_thread(event=None):
+
+    if(threading.active_count() == 1):
+        urlSite = url.get()
+        i =  episodeNum.get()
+        name = showName.get()
+        download_thread = threading.Thread(target=sub_download, args=(urlSite, i, name))
+        download_thread.start()
 
 
 root = Tk()
@@ -62,10 +68,11 @@ episodeEntry = Entry(frame, textvariable = episodeNum)
 episodeEntry.grid(row = 1, column = 2, sticky = N)
 
 bDownload = Button(frame, text="Get data")
-bDownload.bind("<Button-1>", sub_download)
+bDownload.bind("<Button-1>", run_download_thread)
 bDownload.grid(row = 3, column = 1, sticky = NS)
 
 frame.pack(fill="both", expand=True, padx=20, pady=20)
 root.mainloop()
+
 
 
